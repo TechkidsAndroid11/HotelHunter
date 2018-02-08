@@ -7,6 +7,8 @@ import android.util.Log;
 import com.example.nguyenducanhit.hotelhunter2.R;
 import com.example.nguyenducanhit.hotelhunter2.activities.TurnOnGPSActivity;
 import com.example.nguyenducanhit.hotelhunter2.adapter.CustomInfoWindowAdapter;
+import com.example.nguyenducanhit.hotelhunter2.distance_matrix.DistanceInterface;
+import com.example.nguyenducanhit.hotelhunter2.distance_matrix.DistanceResponse;
 import com.example.nguyenducanhit.hotelhunter2.map_direction.DirectionHandler;
 import com.example.nguyenducanhit.hotelhunter2.map_direction.DirectionResponse;
 import com.example.nguyenducanhit.hotelhunter2.map_direction.RetrofitInstance;
@@ -41,6 +43,7 @@ public class DataHandle {
     public static List<LatLng> latLngs = new ArrayList<>();
     private static final String TAG = "DataHandle";
     public static final List<Polyline> polylines = new ArrayList<>();
+    public static List<DistanceResponse.Rows> rows;
     public static List<HotelModel> hotelModels(final GoogleMap mMap, final Context context) {
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = firebaseDatabase.getReference("hotels");
@@ -63,7 +66,7 @@ public class DataHandle {
                     marker.setTag(hotelModel);
                     marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.icon_hotel));
                 }
-
+                Distance(list);
                 mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                     @Override
                     public boolean onMarkerClick(Marker marker) {
@@ -113,5 +116,42 @@ public class DataHandle {
         });
 
         return list;
+    }
+    public static void Distance(List<HotelModel> list)
+    {
+        LatLng currentLocation = TurnOnGPSActivity.currentLocation;
+        String current = Double.toString(currentLocation.latitude) + "," + Double.toString(currentLocation.longitude);
+        String key = "AIzaSyCPHUVwzFXx1bfLxZx9b8QYlZD_HMJza_0";
+        String listLocation = "";
+
+        for (int i = 0; i <list.size(); i++) {
+            listLocation = listLocation + Double.toString(list.get(i).viDo) + "," + Double.toString(list.get(i).kinhDo);
+            if (i + 1 < list.size()) {
+                listLocation = listLocation + "|";
+            }
+        }
+        DistanceInterface distanceInterface = RetrofitInstance.getInstance().create(DistanceInterface.class);
+        distanceInterface.getDistance(current, listLocation, key).enqueue(new Callback<DistanceResponse>() {
+            @Override
+            public void onResponse(Call<DistanceResponse> call, Response<DistanceResponse> response) {
+                Log.d(TAG, "onResponse: " + "0");
+                rows = response.body().rows;
+                if (rows.size() != 0) {
+                    for (int i = 0; i < DataHandle.rows.get(0).elements.size(); i++) {
+                        if(DataHandle.rows.get(0).elements.get(i).status.equals("OK"))
+                        {
+                            Log.d(TAG, "onResponse: " + DataHandle.rows.get(0).elements.get(i).distance.value);
+                        }
+
+                    }
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<DistanceResponse> call, Throwable t) {
+                Log.d(TAG, "onFailure: " + "response faile");
+            }
+        });
     }
 }

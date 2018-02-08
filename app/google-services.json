@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "141277401311-7g9lp230mado671o0po4j41unj7ls476.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nguyenducanhit.hotelhunter2",
+            "certificate_hash": "abb927fd752566c782345cfddee3a67fbca89b4f"
+          }
+        },
+        {
           "client_id": "141277401311-5o6vetqiph1hcrjg33a9fprmhakp3pfi.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
