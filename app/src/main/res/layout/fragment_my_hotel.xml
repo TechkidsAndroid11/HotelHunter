@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/nen_dang_nhap"
+    android:background="#fff"
     tools:context="com.example.nguyenducanhit.hotelhunter2.fragment.MyHotelFragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -34,7 +34,7 @@
             android:layout_gravity="center"
             android:layout_margin="8dp"
             android:text="Phong"
-            android:textColor="#fff"/>
+            android:textColor="#000"/>
     </LinearLayout>
 
     <LinearLayout
@@ -46,7 +46,7 @@
         <TextView
             android:textStyle="bold"
             android:textSize="20sp"
-            android:textColor="#fff"
+            android:textColor="#000"
             android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -61,6 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         app:indicatorName="BallPulseIndicator"
+        app:indicatorColor="@color/colorPrimary"
         />
 
     <android.support.v7.widget.RecyclerView

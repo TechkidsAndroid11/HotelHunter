@@ -161,42 +161,6 @@ public class RatingFragment extends Fragment implements View.OnClickListener {
                         @Override
                         public void onClick(View v) {
 
-
-                            databaseReference.child(firebaseAuth.getCurrentUser().getUid()).child("reviewModels")
-                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                            List<ReviewModel> reviewModelList = new ArrayList<>();
-
-                                            if (dataSnapshot.getChildrenCount() > 0) {
-                                                for (DataSnapshot reviewSnapshot : dataSnapshot.getChildren()) {
-                                                    ReviewModel reviewModel = reviewSnapshot.getValue(ReviewModel.class);
-                                                    reviewModelList.add(reviewModel);
-                                                }
-                                            }
-
-                                            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-
-                                            Date date = Calendar.getInstance().getTime();
-                                            ReviewModel review = new ReviewModel(
-                                                    new UserModel(firebaseAuth.getCurrentUser().getDisplayName(),firebaseAuth.getCurrentUser().getUid(),""),
-                                                    dateFormat.format(date),
-                                                    etComment.getText().toString(),
-
-                                                    rbRate.getRating()
-                                            );
-                                            reviewModelList.add(review);
-                                            databaseReference.child(firebaseAuth.getCurrentUser().getUid())
-                                                    .setValue(userModel);
-                                        }
-
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-                                            Log.d(TAG, "onCancelled: " + databaseError.getMessage());
-                                        }
-                                    });
                             databaseReference = firebaseDatabase.getReference("hotels");
                             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                             Date date = Calendar.getInstance().getTime();

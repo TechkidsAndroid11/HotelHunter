@@ -129,7 +129,8 @@ public class RegisterActivity extends AppCompatActivity {
                                                                 pushData();
                                                                 startActivity(ii);
                                                             }
-                                                            FirebaseAuth.getInstance().signOut();
+                                                            //thêm dòng này lúc đăng kí vs email k tạo đc push đc user vào
+                                                            //FirebaseAuth.getInstance().signOut();
                                                         }
                                                     });
 
@@ -175,7 +176,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void pushData() {
-        Log.d(TAG, "pushData: ");
+        Log.d(TAG, "pushData: " + firebaseAuth.getCurrentUser());
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         databaseReference = firebaseDatabase.getReference("users");
         userModel = new UserModel(firebaseUser.getDisplayName(), firebaseUser.getUid(), "https://scontent.xx.fbcdn.net/v/t1.0-1/c29.0.100.100/p100x100/10354686_10150004552801856_220367501106153455_n.jpg?oh=049ecfece14dfe681a2cc083eeaabc6f&oe=5AA0FC77");

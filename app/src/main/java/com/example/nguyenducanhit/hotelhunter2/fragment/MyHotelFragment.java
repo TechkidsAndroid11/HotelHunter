@@ -46,7 +46,6 @@ public class MyHotelFragment extends Fragment {
     TextView tvName;
     AVLoadingIndicatorView avLoadingIndicatorView;
 
-
     public MyHotelFragment() {
         // Required empty public constructor
     }
@@ -64,54 +63,23 @@ public class MyHotelFragment extends Fragment {
         avLoadingIndicatorView = view.findViewById(R.id.iv_loading);
         avLoadingIndicatorView.show();
 
-
         MainActivity.iv_filter.setVisibility(View.INVISIBLE);
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
-        if (FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl() == null){
-            Picasso.with(getContext()).load(R.drawable.avatar_mac_dinh).transform(new CropCircleTransformation()).into(ivAvata);
-        }
-        else{
-            Picasso.with(getContext()).load(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).transform(new CropCircleTransformation()).into(ivAvata);
-
-        }
+        Picasso.with(getContext()).load(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).transform(new CropCircleTransformation()).into(ivAvata);
         tvName.setText(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
         databaseReference = firebaseDatabase.getReference("users");
         databaseReference.child(firebaseAuth.getCurrentUser().getUid()).child("Huid").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                List<String> huidList = new ArrayList<>();
                 if (dataSnapshot.getChildrenCount() > 0) {
                     for (DataSnapshot d : dataSnapshot.getChildren()) {
                         String huid = d.getValue().toString();
-                        databaseReference = firebaseDatabase.getReference("hotels");
-                        databaseReference.orderByChild("key").equalTo(huid).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                Log.d(TAG, "onDataChange: ");
-                                if (dataSnapshot.getChildrenCount() > 0) {
-                                    for (DataSnapshot d : dataSnapshot.getChildren()) {
-                                        HotelModel hotelModel = d.getValue(HotelModel.class);
-                                        hotelModelList.add(hotelModel);
-
-                                        Log.d(TAG, "onDataChange: "+hotelModelList);
-
-                                    }
-                                    hotelAdapter = new HotelAdapter(getFragmentManager(), getContext(), hotelModelList);
-                                    Log.d(TAG, "onDataChange: " + hotelAdapter);
-                                    rvHotel.setAdapter(hotelAdapter);
-                                    rvHotel.setLayoutManager(new LinearLayoutManager(getContext()));
-                                    rvHotel.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-                                    avLoadingIndicatorView.hide();
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
+                        huidList.add(huid);
                     }
+                    getListHotel(huidList, 0);
                 }
             }
 
@@ -123,6 +91,35 @@ public class MyHotelFragment extends Fragment {
 
 
         return view;
+    }
+
+    public void getListHotel(final List<String> huidList, final int index) {
+        databaseReference = firebaseDatabase.getReference("hotels");
+        Log.d(TAG, "onDataChange: start for loop");
+
+        databaseReference.child(huidList.get(index)).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                HotelModel hotelModel = dataSnapshot.getValue(HotelModel.class);
+                hotelModelList.add(hotelModel);
+
+                if (index == huidList.size() - 1) {
+                    hotelAdapter = new HotelAdapter(getFragmentManager(), getContext(), hotelModelList);
+                    Log.d(TAG, "onDataChange: " + hotelAdapter);
+                    rvHotel.setAdapter(hotelAdapter);
+                    rvHotel.setLayoutManager(new LinearLayoutManager(getContext()));
+                    rvHotel.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+                    avLoadingIndicatorView.hide();
+                } else {
+                    getListHotel(huidList, index + 1);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override

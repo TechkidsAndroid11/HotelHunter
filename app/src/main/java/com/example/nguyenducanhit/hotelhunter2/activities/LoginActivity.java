@@ -275,7 +275,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                                     @Override
                                     public void onCancelled(DatabaseError databaseError) {
-
+                                        Log.d(TAG, "onCancelled: " + databaseError.getMessage());
                                     }
                                 });
 

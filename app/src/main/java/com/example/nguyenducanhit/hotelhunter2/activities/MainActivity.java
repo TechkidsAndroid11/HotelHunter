@@ -293,7 +293,7 @@ public class MainActivity extends AppCompatActivity
         DataHandle.hotelModels(mMap, this);
         list = DataHandle.hotelModels(mMap, this);
         if (first == true) {
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(TurnOnGPSActivity.currentLocation, 18);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(TurnOnGPSActivity.currentLocation, 13);
             mMap.animateCamera(cameraUpdate);
             first = false;
         }
@@ -301,14 +301,14 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onInfoWindowClick(Marker marker) {
 
-                for (int i = 0; i < list.size(); i++) {
-                    if (marker.getPosition().latitude == list.get(i).viDo && marker.getPosition().longitude == list.get(i).kinhDo) {
-                        EventBus.getDefault().postSticky(new OnClickWindowinfo(list.get(i)));
-                        Log.d(TAG, "onInfoWindowClick: " + list.get(i));
-                    }
-                }
+//                for (int i = 0; i < list.size(); i++) {
+//                    if (marker.getPosition().latitude == list.get(i).viDo && marker.getPosition().longitude == list.get(i).kinhDo) {
+//                        EventBus.getDefault().postSticky(new OnClickWindowinfo(list.get(i)));
+//                        Log.d(TAG, "onInfoWindowClick: " + list.get(i));
+//                    }
+//                }
 
-                EventBus.getDefault().postSticky(marker.getTag());
+                EventBus.getDefault().postSticky(new OnClickWindowinfo((HotelModel) marker.getTag()));
 
                 Log.d(TAG, "onInfoWindowClick: " + list.size());
                 Log.d(TAG, "onInfoWindowClick: "+marker.getTag());
