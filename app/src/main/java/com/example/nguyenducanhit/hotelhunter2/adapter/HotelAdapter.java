@@ -13,15 +13,20 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.nguyenducanhit.hotelhunter2.R;
 import com.example.nguyenducanhit.hotelhunter2.Utils.ImageUtils;
 import com.example.nguyenducanhit.hotelhunter2.database.onClickMyHotel;
 import com.example.nguyenducanhit.hotelhunter2.fragment.EditHotelFragment;
 import com.example.nguyenducanhit.hotelhunter2.model.HotelModel;
+import com.example.nguyenducanhit.hotelhunter2.model.UserModel;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -98,7 +103,11 @@ public class HotelAdapter extends RecyclerView.Adapter<HotelAdapter.HotelViewhol
             String giaDon = hotelModel.gia.substring(0, hotelModel.gia.indexOf("-"));
             String giaDoi = hotelModel.gia.substring(hotelModel.gia.indexOf("-")+1);
             tvPrice.setText(NumberFormat.getNumberInstance(Locale.US).format(Integer.parseInt(giaDon))+"VNĐ" +" -  " + NumberFormat.getNumberInstance(Locale.US).format(Integer.parseInt(giaDoi))+ "VNĐ");
-            ivImage.setImageBitmap(ImageUtils.base64ToImage(hotelModel.images.get(0)));
+           if(hotelModel.images!=null&&hotelModel.images.size()!=0)
+           {
+               ivImage.setImageBitmap(ImageUtils.base64ToImage(hotelModel.images.get(0)));
+           }
+
 
 //            PopupMenu popupMenu = new PopupMenu(context, ivMenu);
 //            popupMenu.inflate(R.menu.main);
@@ -155,9 +164,37 @@ public class HotelAdapter extends RecyclerView.Adapter<HotelAdapter.HotelViewhol
                             .setPositiveButton("Có", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    firebaseAuth = FirebaseAuth.getInstance();
-                                    firebaseDatabase = FirebaseDatabase.getInstance();
+                                    databaseReference = firebaseDatabase.getReference("hotels");
+                                    databaseReference.child(hotelModel.key).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            final HotelModel hotelModel = dataSnapshot.getValue(HotelModel.class);
+                                            databaseReference.child(hotelModel.key).removeValue();
+                                            Toast.makeText(context, "Đã xóa thành công", Toast.LENGTH_SHORT).show();
+                                            databaseReference = firebaseDatabase.getReference("users");
+                                            databaseReference.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    UserModel userModel = dataSnapshot.getValue(UserModel.class);
+                                                    userModel.Huid.remove(hotelModel.key);
+                                                    databaseReference.child(userModel.uid).setValue(userModel);
 
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                    hotelModels.remove(hotelModel);
+                                    notifyItemRemoved(getAdapterPosition());
 
                                 }
                             })

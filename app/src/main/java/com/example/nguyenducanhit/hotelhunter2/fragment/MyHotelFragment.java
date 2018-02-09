@@ -105,10 +105,12 @@ public class MyHotelFragment extends Fragment {
 
                 if (index == huidList.size() - 1) {
                     hotelAdapter = new HotelAdapter(getFragmentManager(), getContext(), hotelModelList);
+
                     Log.d(TAG, "onDataChange: " + hotelAdapter);
                     rvHotel.setAdapter(hotelAdapter);
                     rvHotel.setLayoutManager(new LinearLayoutManager(getContext()));
                     rvHotel.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+                    hotelAdapter.notifyDataSetChanged();
                     avLoadingIndicatorView.hide();
                 } else {
                     getListHotel(huidList, index + 1);
@@ -124,8 +126,14 @@ public class MyHotelFragment extends Fragment {
 
     @Override
     public void onStop() {
-        MainActivity.iv_filter.setVisibility(View.VISIBLE);
         super.onStop();
+        MainActivity.iv_filter.setVisibility(View.VISIBLE);
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MainActivity.iv_filter.setVisibility(View.INVISIBLE);
     }
 }
