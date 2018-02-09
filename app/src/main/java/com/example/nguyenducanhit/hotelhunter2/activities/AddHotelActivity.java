@@ -46,14 +46,17 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class AddHotelActivity extends AppCompatActivity implements View.OnClickListener {
     EditText etTenNhaNghi;
@@ -82,7 +85,7 @@ public class AddHotelActivity extends AppCompatActivity implements View.OnClickL
     MyAsyncTask myAsyncTask;
     List<HotelModel> lstModels = new ArrayList<>();
     EditText kinhdo, vido, rate;
-    public LatLng latLng = null;
+    public LatLng latLng = TurnOnGPSActivity.currentLocation;
     String phone1;
 
     HotelModel hotelModel;

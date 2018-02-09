@@ -63,7 +63,19 @@
         app:indicatorName="BallPulseIndicator"
         app:indicatorColor="@color/colorPrimary"
         />
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/tv_nohotel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:text="Danh sách nhà nghỉ trống"
+        android:textColor="#000" />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_myHotel"
         android:layout_width="match_parent"
@@ -71,5 +83,7 @@
         android:layout_margin="8dp">
 
     </android.support.v7.widget.RecyclerView>
+</RelativeLayout>
+
 
 </LinearLayout>

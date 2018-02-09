@@ -23,7 +23,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.nguyenducanhit.hotelhunter2.R;
+import com.example.nguyenducanhit.hotelhunter2.Utils.ImageUtils;
 import com.example.nguyenducanhit.hotelhunter2.activities.AddHotelActivity;
+import com.example.nguyenducanhit.hotelhunter2.activities.MainActivity;
 import com.example.nguyenducanhit.hotelhunter2.database.onClickMyHotel;
 import com.example.nguyenducanhit.hotelhunter2.model.HotelModel;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -97,6 +99,7 @@ public class EditHotelFragment extends Fragment implements View.OnClickListener 
         EventBus.getDefault().register(this);
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
+        MainActivity.iv_filter.setVisibility(View.INVISIBLE);
         setupUI(view);
         addListeners();
         return view;
@@ -137,7 +140,7 @@ public class EditHotelFragment extends Fragment implements View.OnClickListener 
         etTenNhaNghi = view.findViewById(R.id.et_tenadd);
         etDiaChi = view.findViewById(R.id.et_diachiadd);
         etSDT1 = view.findViewById(R.id.et_sdt1add);
-        etGiaDem = view.findViewById(R.id.et_giaadd);
+        etGiaDem = view.findViewById(R.id.et_giademadd);
         etGiaGio = view.findViewById(R.id.et_giagioadd);
 
         iv_wifi = view.findViewById(R.id.iv_wifiadd);
@@ -159,51 +162,69 @@ public class EditHotelFragment extends Fragment implements View.OnClickListener 
         ln_wifi = view.findViewById(R.id.ln_wifi);
         ln_nonglanh = view.findViewById(R.id.ln_nonglanh);
         horizontalScrollView = view.findViewById(R.id.sc_view);
-        kinhdo = view.findViewById(R.id.et_kinhdoadd);
-        vido = view.findViewById(R.id.et_vidoadd);
+        horizontalScrollView.setVisibility(View.GONE);
         ln_thangmay = view.findViewById(R.id.ln_thangmay);
         ln_tulanh = view.findViewById(R.id.ln_tulanh);
         ln_tivi = view.findViewById(R.id.ln_tivi);
         ln_image = view.findViewById(R.id.ln_image);
-        rate = view.findViewById(R.id.et_rateadd);
-        kinhdo.setVisibility(View.GONE);
-        vido.setVisibility(View.GONE);
-        rate.setVisibility(View.GONE);
         etTenNhaNghi.setText((hotelModel.nameHotel));
         etDiaChi.setText(hotelModel.address);
         etSDT1.setText(hotelModel.phone);
-//        etGiaDem.addTextChangedListener(onTextChangedListener(etGiaDem));
-//        etGiaGio.addTextChangedListener(onTextChangedListener(etGiaGio));
-        etGiaDem.setText(hotelModel.gia);
+        String giaGio = hotelModel.gia.substring(0, hotelModel.gia.indexOf("-"));
+        String giaDem = hotelModel.gia.substring(hotelModel.gia.indexOf("-") + 1);
+        etGiaDem.addTextChangedListener(onTextChangedListener(etGiaDem));
+        etGiaGio.addTextChangedListener(onTextChangedListener(etGiaGio));
+        etGiaDem.setText(giaDem);
+        etGiaGio.setText(giaGio);
         firebaseDatabase = FirebaseDatabase.getInstance();
 
         AlphaAnimation alpha = new AlphaAnimation(0.1F, 0.1F);
         alpha.setDuration(0);
         alpha.setFillAfter(true);
         if (!hotelModel.dieuHoa) {
-            ln_dieuhoa.startAnimation(alpha);
+           dieuHoa = false;
+
+        }
+        else {
+            dieuHoa=true;
         }
 
         if (!hotelModel.wifi) {
-            ln_wifi.startAnimation(alpha);
+            wifi = false;
+        }
+        else {
+            wifi=true;
         }
 
         if (!hotelModel.nongLanh) {
-            ln_nonglanh.startAnimation(alpha);
+            nongLanh = false;
+        }
+        else {
+            nongLanh = true;
         }
 
         if (!hotelModel.thangMay) {
-            ln_thangmay.startAnimation(alpha);
+            thangMay = false;
+        }
+        else {
+            thangMay=true;
         }
 
         if (!hotelModel.tulanh) {
-            ln_tulanh.startAnimation(alpha);
+            tuLanh = false;
+        }
+        else {
+            tuLanh = true;
         }
 
         if (!hotelModel.tivi) {
-            ln_tivi.startAnimation(alpha);
+            tiVi = false;
         }
-
+        else {
+            tiVi = true;
+        }
+        setEnableService();
+        latLng = new LatLng(hotelModel.viDo,hotelModel.kinhDo);
 
     }
 
@@ -307,14 +328,39 @@ public class EditHotelFragment extends Fragment implements View.OnClickListener 
             databaseReference.child(hotelModel.key).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot bookSnapShot : dataSnapshot.getChildren()) {
-                        HotelModel hotelModel = bookSnapShot.getValue(HotelModel.class);
+                        HotelModel hotelModel = dataSnapshot.getValue(HotelModel.class);
                         hotelModel.tulanh = tuLanh;
                         hotelModel.tivi = tiVi;
                         hotelModel.thangMay = thangMay;
                         hotelModel.nongLanh = nongLanh;
                         hotelModel.dieuHoa = dieuHoa;
                         hotelModel.wifi = wifi;
+                        boolean dk = true;
+                        if (TextUtils.isEmpty(etTenNhaNghi.getText())) {
+                            etTenNhaNghi.setError("Tên nhà nghỉ không được để trống");
+                            dk = false;
+                        }
+                        if(TextUtils.isEmpty(etDiaChi.getText()))
+                        {
+                            etDiaChi.setError("Địa chỉ không được để trống");
+                            dk = false;
+                        }
+                        if (TextUtils.isEmpty(etSDT1.getText())) {
+                            etSDT1.setError("Số điện thoại chính không được để trống");
+                            dk = false;
+                        }
+                        if (TextUtils.isEmpty(etGiaGio.getText())) {
+                            etGiaGio.setError("Không được để trống");
+                            dk = false;
+                        }
+                        if (TextUtils.isEmpty(etGiaDem.getText())) {
+                            etGiaDem.setError("Không được để trống");
+                            dk = false;
+                        }
+                        if(!dk)
+                        {
+                            return;
+                        }
                         hotelModel.address = etDiaChi.getText().toString();
                         hotelModel.nameHotel = etTenNhaNghi.getText().toString();
                         hotelModel.phone = etSDT1.getText().toString();
@@ -324,10 +370,11 @@ public class EditHotelFragment extends Fragment implements View.OnClickListener 
 
                         hotelModel.kinhDo = latLng.longitude;
                         hotelModel.viDo = latLng.latitude;
-                        databaseReference.child(hotelModel.key).setValue(hotelModel);
                         Toast.makeText(getContext(),"Chỉnh sửa thành công", Toast.LENGTH_SHORT).show();
+                        databaseReference.child(hotelModel.key).setValue(hotelModel);
+                        //ImageUtils.openFragment(getFragmentManager(), R.id.rl_main, new MyHotelFragment());
 
-                    }
+
                 }
 
                 @Override
@@ -335,32 +382,6 @@ public class EditHotelFragment extends Fragment implements View.OnClickListener 
 
                 }
             });
-        boolean dk = true;
-        if (TextUtils.isEmpty(etTenNhaNghi.getText())) {
-            etTenNhaNghi.setError("Tên nhà nghỉ không được để trống");
-            dk = false;
-        }
-        if (TextUtils.isEmpty(etDiaChi.getText())) {
-            etDiaChi.setError("Địa chỉ không được để trống");
-            dk = false;
-        }
-        if (TextUtils.isEmpty(etSDT1.getText())) {
-            etSDT1.setError("Số điện thoại chính không được để trống");
-            dk = false;
-        }
-        if (TextUtils.isEmpty(etGiaGio.getText())) {
-            etGiaGio.setError("Không được để trống");
-            dk = false;
-        }
-        if (TextUtils.isEmpty(etGiaDem.getText())) {
-            etGiaDem.setError("Không được để trống");
-            dk = false;
-        }
-        if (!dk) {
-            return;
-
-
-        }
     }
 
     @Override
@@ -424,6 +445,11 @@ public class EditHotelFragment extends Fragment implements View.OnClickListener 
 
     }
 
+    @Override
+    public void onStop() {
+        MainActivity.iv_filter.setVisibility(View.VISIBLE);
+        super.onStop();
+    }
 
 //    @Override
 //    public void onActivityResult(int requestCode, int resultCode, Intent data) {

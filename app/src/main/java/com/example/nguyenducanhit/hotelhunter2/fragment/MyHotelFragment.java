@@ -43,7 +43,7 @@ public class MyHotelFragment extends Fragment {
     HotelAdapter hotelAdapter;
     RecyclerView rvHotel;
     ImageView ivAvata;
-    TextView tvName;
+    TextView tvName,tv_nohotel;
     AVLoadingIndicatorView avLoadingIndicatorView;
 
     public MyHotelFragment() {
@@ -59,7 +59,8 @@ public class MyHotelFragment extends Fragment {
         rvHotel = view.findViewById(R.id.rv_myHotel);
         ivAvata= view.findViewById(R.id.iv_avatar);
         tvName=view.findViewById(R.id.tv_name);
-
+        tv_nohotel = view.findViewById(R.id.tv_nohotel);
+        tv_nohotel.setVisibility(View.INVISIBLE);
         avLoadingIndicatorView = view.findViewById(R.id.iv_loading);
         avLoadingIndicatorView.show();
 
@@ -80,6 +81,10 @@ public class MyHotelFragment extends Fragment {
                         huidList.add(huid);
                     }
                     getListHotel(huidList, 0);
+                }
+                else {
+                    avLoadingIndicatorView.hide();
+                    tv_nohotel.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -105,10 +110,12 @@ public class MyHotelFragment extends Fragment {
 
                 if (index == huidList.size() - 1) {
                     hotelAdapter = new HotelAdapter(getFragmentManager(), getContext(), hotelModelList);
+
                     Log.d(TAG, "onDataChange: " + hotelAdapter);
                     rvHotel.setAdapter(hotelAdapter);
                     rvHotel.setLayoutManager(new LinearLayoutManager(getContext()));
                     rvHotel.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+                    hotelAdapter.notifyDataSetChanged();
                     avLoadingIndicatorView.hide();
                 } else {
                     getListHotel(huidList, index + 1);
@@ -124,8 +131,14 @@ public class MyHotelFragment extends Fragment {
 
     @Override
     public void onStop() {
-        MainActivity.iv_filter.setVisibility(View.VISIBLE);
         super.onStop();
+        MainActivity.iv_filter.setVisibility(View.VISIBLE);
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MainActivity.iv_filter.setVisibility(View.INVISIBLE);
     }
 }

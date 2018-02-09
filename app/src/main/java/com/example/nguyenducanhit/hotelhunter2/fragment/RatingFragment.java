@@ -175,6 +175,18 @@ public class RatingFragment extends Fragment implements View.OnClickListener {
                             } else {
                                 hotelModel.reviewModels.add(review);
                             }
+                            float tong =0f;
+                            for(int i=0; i<hotelModel.reviewModels.size(); i++)
+                            {
+                                tong = tong+hotelModel.reviewModels.get(i).ratting;
+                            }
+                            try {
+                                hotelModel.danhGiaTB = tong/hotelModel.reviewModels.size();
+                            }
+                            catch (Exception e){
+                                Log.d(TAG, "onClick: loi list review = 0");
+                            }
+
                             rvFeedback.setAdapter(new FeedbackAdapter(getContext(), hotelModel.reviewModels));
                             databaseReference.child(hotelModel.key).setValue(hotelModel);
                             alertDialog.dismiss();
